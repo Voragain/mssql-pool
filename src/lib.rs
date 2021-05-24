@@ -137,6 +137,7 @@ pub enum Error {
     MissingConfig { field: String },
     #[snafu(display("Invalid Configuration field value [field: {}]", field))]
     InvalidConfig { field: String },
+    ConnectionError {},
 }
 
 impl r2d2::ManageConnection for ConnectionManager {
@@ -147,20 +148,24 @@ impl r2d2::ManageConnection for ConnectionManager {
     fn connect(&self) -> Result<Self::Connection, Self::Error> {
         use tokio_util::compat::TokioAsyncWriteCompatExt;
 
-        let conn: tiberius::Client<Box<dyn ConnectionImplementation>> = self.runtime.block_on(async move {
-            let tcp = std::net::TcpStream::connect(self.config.get_addr()).unwrap();
-            tcp.set_nodelay(true).unwrap();
+        let conn: Result<tiberius::Client<Box<dyn ConnectionImplementation>>, Self::Error> = self.runtime.block_on(async move {
+            let tcp = std::net::TcpStream::connect(self.config.get_addr()).map_err(|_| ConnectionError {}.build())?;
+            tcp.set_nodelay(true).map_err(|_| ConnectionError {}.build())?;
     
-            let compat_stream = tokio::net::TcpStream::from_std(tcp).unwrap().compat_write();
+            let compat_stream = tokio::net::TcpStream::from_std(tcp)
+                .map_err(|_| ConnectionError {}.build())?
+                .compat_write();
     
             let boxed_stream: Box<dyn ConnectionImplementation> = Box::new(compat_stream);
 
-            tiberius::Client::connect(self.config.clone(), boxed_stream).await.unwrap()
+            tiberius::Client::connect(self.config.clone(), boxed_stream)
+                .await
+                .map_err(|_| ConnectionError {}.build())
         });
 
 
         Ok(Self::Connection {
-            inner: conn
+            inner: conn?
         })
 
     }
