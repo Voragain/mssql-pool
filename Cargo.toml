@@ -13,16 +13,16 @@ readme = "readme.md"
 
 [dependencies]
 tiberius = "0.5.13"
-log = "*"
-futures = "*"
-snafu = "*"
+log = "0.4.14"
+futures = "0.3.15"
+snafu = "0.6.10"
 
 [dependencies.tokio]
 version = "1.6"
 features = ["full"]
 
 [dependencies.tokio-util]
-version = "*"
+version = "0.6.7"
 features = ["compat"]
 
 [dependencies.rocket_contrib]
