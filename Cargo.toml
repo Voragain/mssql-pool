@@ -1,0 +1,31 @@
+[package]
+name = "mssql-pool"
+version = "0.1.0"
+edition = "2018"
+authors = ["Frédéric Béland <beland.f@hotmail.ca>"]
+license = "MIT"
+description = "A MSSQL Poolable implementation for Rocket"
+repository = "https://github.com/Voragain/mssql-pool"
+homepage = "https://github.com/Voragain/mssql-pool"
+readme = "readme.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = "0.4.10"
+tiberius = "0.5.13"
+log = "*"
+futures = "*"
+snafu = "*"
+
+[dependencies.tokio]
+version = "1.6"
+features = ["full"]
+
+[dependencies.tokio-util]
+version = "*"
+features = ["compat"]
+
+[dependencies.rocket_contrib]
+version = "0.4"
+features = ["databases"]
